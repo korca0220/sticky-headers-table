@@ -222,7 +222,7 @@ class _StickyHeadersTableState extends State<StickyHeadersTable> {
               behavior: HitTestBehavior.opaque,
               onTap: widget.onStickyLegendPressed,
               child: Container(
-                width: widget.cellDimensions.stickyLegendWidth,
+                width: 100,
                 height: widget.cellDimensions.stickyLegendHeight,
                 alignment: widget.cellAlignments.stickyLegendAlignment,
                 child: widget.legendCell,
@@ -253,7 +253,6 @@ class _StickyHeadersTableState extends State<StickyHeadersTable> {
                             child: Container(
                               key: globalRowTitleKeys[i] ??= GlobalKey(),
                               width: widget.cellDimensions.stickyWidth(i),
-                              height: widget.cellDimensions.stickyLegendHeight,
                               alignment: widget.cellAlignments.rowAlignment(i),
                               child: widget.columnsTitleBuilder(i),
                             ),
