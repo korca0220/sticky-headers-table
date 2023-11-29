@@ -223,7 +223,7 @@ class _StickyHeadersTableState extends State<StickyHeadersTable> {
               onTap: widget.onStickyLegendPressed,
               child: Container(
                 width: widget.cellDimensions.stickyLegendWidth,
-                height: widget.cellDimensions.stickyLegendHeight * 2,
+                height: widget.cellDimensions.stickyLegendHeight,
                 alignment: widget.cellAlignments.stickyLegendAlignment,
                 child: widget.legendCell,
               ),
