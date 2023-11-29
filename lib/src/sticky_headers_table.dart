@@ -13,6 +13,7 @@ import 'custom_properties/scroll_controllers.dart';
 class StickyHeadersTable extends StatefulWidget {
   StickyHeadersTable({
     Key? key,
+    this.rowTitleHeader,
 
     /// Number of Columns (for content only)
     required this.columnsLength,
@@ -88,6 +89,7 @@ class StickyHeadersTable extends StatefulWidget {
   final Widget Function(int columnIndex) columnsTitleBuilder;
   final Widget Function(int rowIndex) rowsTitleBuilder;
   final Widget Function(int columnIndex, int rowIndex) contentCellBuilder;
+  final List<Widget>? rowTitleHeader;
   final CellDimensions cellDimensions;
   final CellAlignments cellAlignments;
   final Function() onStickyLegendPressed;
@@ -221,7 +223,7 @@ class _StickyHeadersTableState extends State<StickyHeadersTable> {
               onTap: widget.onStickyLegendPressed,
               child: Container(
                 width: widget.cellDimensions.stickyLegendWidth,
-                height: widget.cellDimensions.stickyLegendHeight,
+                height: widget.cellDimensions.stickyLegendHeight * 2,
                 alignment: widget.cellAlignments.stickyLegendAlignment,
                 child: widget.legendCell,
               ),
@@ -230,37 +232,38 @@ class _StickyHeadersTableState extends State<StickyHeadersTable> {
             /// STICKY ROW
             Expanded(
               child: NotificationListener<ScrollNotification>(
-                child: Scrollbar(
-                  // Key is required to avoid 'The Scrollbar's ScrollController has no ScrollPosition attached.
-                  key: Key('Row ${widget.showVerticalScrollbar}'),
-                  thumbVisibility: widget.showVerticalScrollbar ?? false,
-                  controller:
-                      widget.scrollControllers.horizontalTitleController,
-                  child: SingleChildScrollView(
-                    reverse: widget.tableDirection == TextDirection.rtl,
-                    physics: widget.scrollPhysics.stickyRow,
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      textDirection: widget.tableDirection,
-                      children: List.generate(
-                        widget.columnsLength,
-                        (i) => GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onTap: () => widget.onColumnTitlePressed(i),
-                          child: Container(
-                            key: globalRowTitleKeys[i] ??= GlobalKey(),
-                            width: widget.cellDimensions.stickyWidth(i),
-                            height: widget.cellDimensions.stickyLegendHeight,
-                            alignment: widget.cellAlignments.rowAlignment(i),
-                            child: widget.columnsTitleBuilder(i),
+                child: SingleChildScrollView(
+                  reverse: widget.tableDirection == TextDirection.rtl,
+                  physics: widget.scrollPhysics.stickyRow,
+                  scrollDirection: Axis.horizontal,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      if (widget.rowTitleHeader != null) ...{
+                        ...widget.rowTitleHeader!,
+                      },
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        textDirection: widget.tableDirection,
+                        children: List.generate(
+                          widget.columnsLength,
+                          (i) => GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () => widget.onColumnTitlePressed(i),
+                            child: Container(
+                              key: globalRowTitleKeys[i] ??= GlobalKey(),
+                              width: widget.cellDimensions.stickyWidth(i),
+                              height: widget.cellDimensions.stickyLegendHeight,
+                              alignment: widget.cellAlignments.rowAlignment(i),
+                              child: widget.columnsTitleBuilder(i),
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    controller:
-                        widget.scrollControllers.horizontalTitleController,
+                    ],
                   ),
+                  controller:
+                      widget.scrollControllers.horizontalTitleController,
                 ),
                 onNotification: (notification) =>
                     _onHorizontalScrollingNotification(
@@ -279,32 +282,25 @@ class _StickyHeadersTableState extends State<StickyHeadersTable> {
             children: <Widget>[
               /// STICKY COLUMN
               NotificationListener<ScrollNotification>(
-                child: Scrollbar(
-                  // Key is required to avoid 'The Scrollbar's ScrollController has no ScrollPosition attached.
-                  key: Key('Column ${widget.showHorizontalScrollbar}'),
-                  thumbVisibility: widget.showHorizontalScrollbar ?? false,
-                  controller: widget.scrollControllers.verticalBodyController,
-                  child: SingleChildScrollView(
-                    physics: widget.scrollPhysics.stickyColumn,
-                    child: Column(
-                      children: List.generate(
-                        widget.rowsLength,
-                        (i) => GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onTap: () => widget.onRowTitlePressed(i),
-                          child: Container(
-                            key: globalColumnTitleKeys[i] ??= GlobalKey(),
-                            width: widget.cellDimensions.stickyLegendWidth,
-                            height: widget.cellDimensions.stickyHeight(i),
-                            alignment: widget.cellAlignments.columnAlignment(i),
-                            child: widget.rowsTitleBuilder(i),
-                          ),
+                child: SingleChildScrollView(
+                  physics: widget.scrollPhysics.stickyColumn,
+                  child: Column(
+                    children: List.generate(
+                      widget.rowsLength,
+                      (i) => GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => widget.onRowTitlePressed(i),
+                        child: Container(
+                          key: globalColumnTitleKeys[i] ??= GlobalKey(),
+                          width: widget.cellDimensions.stickyLegendWidth,
+                          height: widget.cellDimensions.stickyHeight(i),
+                          alignment: widget.cellAlignments.columnAlignment(i),
+                          child: widget.rowsTitleBuilder(i),
                         ),
                       ),
                     ),
-                    controller:
-                        widget.scrollControllers.verticalTitleController,
                   ),
+                  controller: widget.scrollControllers.verticalTitleController,
                 ),
                 onNotification: (notification) =>
                     _onVerticalScrollingNotification(
